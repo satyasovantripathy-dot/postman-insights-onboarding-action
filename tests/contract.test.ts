@@ -9,7 +9,11 @@ import {
   contractOutputNames
 } from '../src/contracts.js';
 import { assertWritingInputs, resolveInputs, createPlannedOutputs } from '../src/index.js';
-import { parsePostmanRegion, parsePostmanStack } from '../src/lib/postman/base-urls.js';
+import {
+  parsePostmanRegion,
+  parsePostmanStack,
+  resolvePostmanEndpointProfile
+} from '../src/lib/postman/base-urls.js';
 
 const repoRoot = resolve(import.meta.dirname, '..');
 const actionManifest = parse(
@@ -148,6 +152,16 @@ describe('action contract', () => {
     const eu = resolveInputs({ ...base, INPUT_POSTMAN_REGION: 'eu' });
     expect(eu.postmanRegion).toBe('eu');
     expect(eu.postmanApiBase).toBe('https://api.eu.postman.com');
+    expect(eu.postmanBifrostBase).toBe('https://bifrost-premium-https.gw.eu.postman.com');
+    expect(eu.postmanIapubBase).toBe('https://iapub.eu.postman.co');
+  });
+
+  it('keeps every credential-bearing host off the US stack for region eu', () => {
+    const eu = resolvePostmanEndpointProfile('prod', 'eu');
+    const us = resolvePostmanEndpointProfile('prod', 'us');
+    for (const key of ['apiBaseUrl', 'bifrostBaseUrl', 'iapubBaseUrl'] as const) {
+      expect(eu[key], key).not.toBe(us[key]);
+    }
   });
 
   it('defaults poll-timeout-seconds to 120 and poll-interval-seconds to 10', () => {

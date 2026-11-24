@@ -30820,6 +30820,11 @@ var POSTMAN_ENDPOINT_PROFILES = {
     observabilityEnv: "beta"
   }
 };
+var EU_PROD_ENDPOINTS = {
+  apiBaseUrl: "https://api.eu.postman.com",
+  bifrostBaseUrl: "https://bifrost-premium-https.gw.eu.postman.com",
+  iapubBaseUrl: "https://iapub.eu.postman.co"
+};
 function parsePostmanRegion(value) {
   const normalized = String(value || "us").trim().toLowerCase();
   if (normalized === "us" || normalized === "eu") {
@@ -30844,10 +30849,7 @@ function resolvePostmanEndpointProfile(stack, region = "us") {
   }
   const profile = POSTMAN_ENDPOINT_PROFILES[stack];
   if (region === "eu") {
-    return {
-      ...profile,
-      apiBaseUrl: "https://api.eu.postman.com"
-    };
+    return { ...profile, ...EU_PROD_ENDPOINTS };
   }
   return profile;
 }

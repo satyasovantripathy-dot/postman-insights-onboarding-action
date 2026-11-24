@@ -28,6 +28,19 @@ export const POSTMAN_ENDPOINT_PROFILES: Record<PostmanStack, PostmanEndpointProf
   }
 };
 
+/**
+ * EU data-residency stack. EU is a separate identity and gateway stack: a token
+ * minted on api.eu.postman.com is only valid on these hosts and is rejected
+ * (iapub 401, Bifrost 403) by the US ones. Applied on top of the prod profile
+ * when postman-region=eu. observabilityBaseUrl has no confirmed EU counterpart
+ * and is left on the prod value.
+ */
+const EU_PROD_ENDPOINTS: Partial<PostmanEndpointProfile> = {
+  apiBaseUrl: 'https://api.eu.postman.com',
+  bifrostBaseUrl: 'https://bifrost-premium-https.gw.eu.postman.com',
+  iapubBaseUrl: 'https://iapub.eu.postman.co'
+};
+
 export function parsePostmanRegion(value: string | undefined): PostmanRegion {
   const normalized = String(value || 'us').trim().toLowerCase();
   if (normalized === 'us' || normalized === 'eu') {
@@ -57,10 +70,7 @@ export function resolvePostmanEndpointProfile(
   }
   const profile = POSTMAN_ENDPOINT_PROFILES[stack];
   if (region === 'eu') {
-    return {
-      ...profile,
-      apiBaseUrl: 'https://api.eu.postman.com'
-    };
+    return { ...profile, ...EU_PROD_ENDPOINTS };
   }
   return profile;
 }
